@@ -3,15 +3,13 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>Shipping - Free Play</title>
+    <title>Ultimate</title>
     
 
   </head>
     
   <body>
-  <div style="position:fixed;top:0;left:0;padding:4px 8px;background:#000;color:#ff3b3b;font-size:12px;z-index:9999;">
-  BUILD TEST ✅  (export check)
-</div>
+  <!-- BES_FINGERPRINT: LV_PAYOUT + WELCOME_500 + BUILD_LABEL (2026-02-04) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -448,6 +446,7 @@
     color:#eef3ff;
     font-weight:1000;
   }
+  .numVal.dim{ color:#9aa7b8; font-weight:900; }
 
   .numFooter{
     display:flex;
@@ -463,24 +462,39 @@
   }
   .shareBtn:active{ transform:scale(.99); }
 
-  /* Manage Chips preview card */
-  .chipsCard{
-    background:rgba(15,23,42,.55);
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:14px;
-    padding:12px 14px;
-    margin-top:8px;
+  /* Chips balance color coding */
+  .chipsRed{ color: var(--bad); font-weight: 1000; }
+  .chipsYellow{ color: var(--warn); font-weight: 1000; }
+  .chipsGreen{ color: var(--good); font-weight: 1000; }
+
+  /* Chips toast */
+  .chipToast{
+    position: fixed;
+    left: 50%;
+    bottom: 92px;
+    transform: translateX(-50%);
+    background: rgba(15,23,42,.92);
+    border: 1px solid rgba(255,255,255,.14);
+    color: #eaf2ff;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 1000;
+    letter-spacing: .2px;
+    box-shadow: 0 14px 34px rgba(0,0,0,.55);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2000;
   }
-  .chipsCard h3{
-    margin:0 0 6px;
-    font-size:13px;
-    letter-spacing:.2px;
-    color:#eaf2ff;
+
+  .chipToast.show{
+    animation: chipToastFade 1.6s ease-in-out forwards;
   }
-  .chipsNote{
-    margin-top:10px;
-    opacity:.75;
-    font-weight:900;
+
+  @keyframes chipToastFade{
+    0%   { opacity: 0; transform: translateX(-50%) translateY(6px); }
+    15%  { opacity: 1; transform: translateX(-50%) translateY(0px); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
   }
 
   @media (max-width: 430px){
@@ -559,7 +573,7 @@
     <div class="tray">
       <div class="bottomControls">
         <button id="discardBtn" class="ctrl secondary" disabled>Discard Visible</button>
-        <button id="restartBtn" class="ctrl" type="button">Restart</button>
+        <button id="restartBtn" class="ctrl">Restart</button>
       </div>
 
       <div id="status" class="status" style="margin-top:6px;"></div>
@@ -593,7 +607,7 @@
   </div>
 
   <footer>
-    © <span id="year"></span> <b>Kenneth Murray</b>. Black-Eyed Sally’s Poker Box™. — Build <span id="build">2/1/2026</span>
+    © <span id="year"></span> <b>Kenneth Murray</b>. Black-Eyed Sally’s Poker Box™. — Build <span id="build">dev-chips-v2 (2/1/2026)</span>
   </footer>
 </div>
 
@@ -607,22 +621,35 @@
 
     <div class="rules">
       <ul>
-        <li><b>Objective:</b> Build scoring runs on a <b>4×4</b> grid over <b>3 hands</b> to grow your Grubstake from <b>40</b> to <b>80+</b>.</li>
-        <li><b>Grubstake:</b> starts at <b>40</b>. You win the game at <b>80</b>. Above 80, Grubstake becomes a raw leaderboard number.</li>
-        <li><b>Ante:</b> Before each hand, choose an Ante (minimum 1). It is immediately deducted from Grubstake.</li>
-        <li><b>Deal:</b> Cards are dealt in groups of <b>3</b>. You must place <b>one card</b> into an empty grid slot each deal.</li>
-        <li><b>Discarding:</b> Only the <b>first visible card</b> may be discarded. You may discard up to <b>3 cards per hand</b>.</li>
-        <li><b>Discard penalty:</b> Discarded cards add penalty points equal to their value. Your score is <b>Grid Score − Penalty</b>.</li>
-        <li><b>Joker:</b> The Joker may be discarded for <b>+5 points</b>. The Joker may <b>never</b> be placed on the grid.</li>
-        <li><b>Win a hand:</b> If your final score ≥ target, you get your <b>Ante back</b> and win <b>another Ante</b> (even money).</li>
-        <li><b>Carryover:</b> If Hand 1 or 2 scores above <b>125</b>, the excess lowers the next hand’s target.</li>
-        <li><b>Bankrupt:</b> If you start a hand with <b>0</b> Grubstake, the game ends.</li>
+        <li><b>Objective:</b> Over three hands, grow your Grubstake from <b>40</b> to <b>80+</b> by building scoring combinations on the 4×4 grid.</li>
+
+        <li><b>Hand Goal:</b> Each hand requires a score of <b>110</b> or higher to win. Exceptional scores in Hand 1 or 2 (above 125) reduce the next hand’s goal.</li>
+
+        <li><b>Scoring Combinations:</b>
+          <ul>
+            <li><b>Pair (2 cards):</b> Identical number cards score their total value. Identical face cards (J-Q-K) score 20.</li>
+            <li><b>Run (3–4 cards):</b> Consecutive ranks in the <b>same suit</b> score double their total value.</li>
+            <li><b>Set (3–4 cards):</b> Same rank scores double total value.</li>
+          </ul>
+        </li>
+
+        <li><b>Joker:</b> May never be placed on the grid. Discarding it earns <b>+5 points</b>.</li>
+
+        <li><b>Deal &amp; Placement:</b> Cards are dealt in groups of three. One card must be placed on the grid per deal.</li>
+
+        <li><b>Discards:</b> Only the first visible card may be discarded. Maximum three discards per hand.</li>
+
+        <li><b>Penalties:</b> Discarded cards add penalty points equal to their value. Final hand score = Grid Total − Penalties + Joker bonus.</li>
+
+        <li><b>Ante:</b> Before each hand, choose your wager. Winning pays even money (Ante returned + equal amount).</li>
+
+        <li><b>Game Win:</b> Reach <b>80</b> Grubstake to win the game. If Grubstake falls to 0, the game ends.</li>
       </ul>
     </div>
   </div>
 </div>
 
-<!-- Numbers Modal -->
+<!-- Numbers Modal (FULL, live) -->
 <div id="numbersOverlay" class="modalOverlay" role="dialog" aria-modal="true" aria-label="The Numbers">
   <div class="modal">
     <div class="modalHeader">
@@ -668,7 +695,7 @@
   </div>
 </div>
 
-<!-- Manage Chips Modal (Preview text only, per your screenshot) -->
+<!-- Chips Modal -->
 <div id="chipsOverlay" class="modalOverlay" role="dialog" aria-modal="true" aria-label="Manage Chips">
   <div class="modal">
     <div class="modalHeader">
@@ -677,29 +704,42 @@
     </div>
 
     <div class="rules">
-      <div class="chipsCard">
-        <h3>Free Preview Version</h3>
-        <div style="margin-bottom:8px; opacity:.95;">
-          You’re playing a free preview build while we finish the full player-payment system.
-        </div>
-        <ul style="margin:8px 0 0 18px;">
-          <li><b>Unlimited play</b> in this preview.</li>
-          <li><b>Chips &amp; paid options</b> will arrive in a future update.</li>
-          <li>Thanks for being an early tester.</li>
-        </ul>
+      <ul>
+        <li><b>Chips:</b> <span id="chipsBalance">—</span></li>
+        <li style="opacity:.85;"><b>Daily deposit:</b> +125 (credited on next visit after midnight ET)</li>
+        <li><b>Next deposit:</b> <span id="chipsCountdown">—</span></li>
+        <li style="opacity:.85;"><b>Cost per game:</b> 40 chips</li>
+        <li style="opacity:.78;"><b>Backpay cap:</b> Up to 3 missed days</li>
+      </ul>
+
+      <div style="margin-top:10px; opacity:.75;">
+        <b>Buy chips:</b> Coming Soon
       </div>
 
-      <div class="chipsNote">
-        (This button stays here so the transition to paid options later won’t feel abrupt.)
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="pillBtn" type="button" disabled style="opacity:.65; cursor:not-allowed; border-style:dashed;">
+          Buy Chips (Coming Soon)
+        </button>
+        <button class="pillBtn" type="button" disabled style="opacity:.65; cursor:not-allowed; border-style:dashed;">
+          Unlimited (Monthly) (Coming Soon)
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<script>
+<div id="chipToast" class="chipToast" aria-live="polite" aria-atomic="true"></div>
+  <script>
 (() => {
-  /* Theme */
-  const THEME_KEY = "pokerbox_theme_v1";
+  // ============================================================
+  // STORAGE NAMESPACE (ISOLATED FROM YOUR WORKING BUILD)
+  // Change BUILD_ID if you ever fork again for another DEV branch.
+  // ============================================================
+  const BUILD_ID = "BES_DEV_CHIPS_V2_2026_02_01";
+  const K = (name) => `${BUILD_ID}::${name}`;
+
+  /* Theme (isolated) */
+  const THEME_KEY = K("pokerbox_theme_v1");
   const themePicker = document.getElementById("themePicker");
   function applyTheme(name){
     document.documentElement.setAttribute("data-theme", name === "perch" ? "" : name);
@@ -729,15 +769,36 @@
   document.getElementById("numbersCloseBtn").addEventListener("click", () => numbersOverlay.classList.remove("show"));
   numbersOverlay.addEventListener("click", (e) => { if (e.target === numbersOverlay) numbersOverlay.classList.remove("show"); });
 
-  document.getElementById("chipsBtn").addEventListener("click", () => chipsOverlay.classList.add("show"));
+  document.getElementById("chipsBtn").addEventListener("click", () => { refreshChipsUI(); chipsOverlay.classList.add("show"); });
   document.getElementById("chipsCloseBtn").addEventListener("click", () => chipsOverlay.classList.remove("show"));
   chipsOverlay.addEventListener("click", (e) => { if (e.target === chipsOverlay) chipsOverlay.classList.remove("show"); });
 
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAllModals(); });
 
-  /* Numbers (persistent, ET-based) */
-  const STATS_KEY = "bes_numbers_v1";
-  const ET_TZ = "America/New_York";
+  /* Toast */
+  const chipToastEl = document.getElementById("chipToast");
+  let chipToastTimer = null;
+
+  function showChipToast(msg){
+    if (!chipToastEl) return;
+    chipToastEl.textContent = msg;
+
+    chipToastEl.classList.remove("show");
+    void chipToastEl.offsetWidth; // restart animation
+    chipToastEl.classList.add("show");
+    clearTimeout(chipToastTimer);
+    chipToastTimer = setTimeout(() => chipToastEl.classList.remove("show"), 1700);
+  }
+
+  // ============================================================
+  // CHIPS (VERSION 2): ON-DEMAND DAILY ACCRUAL + 3-DAY CAP
+  // No midnight timer. No setInterval deposit loop.
+  // ============================================================
+  const CHIP_STATE_KEY   = K("bes_chip_state_v3");
+  const DAILY_CHIPS      = 125;
+  const GAME_COST        = 40;
+  const MAX_BACKPAY_DAYS = 3;
+  const ET_TZ            = "America/New_York";
 
   function getTZParts(date = new Date(), timeZone = ET_TZ){
     const dtf = new Intl.DateTimeFormat("en-US", {
@@ -749,6 +810,7 @@
     const parts = dtf.formatToParts(date);
     const map = {};
     for (const p of parts) map[p.type] = p.value;
+
     return {
       year:  Number(map.year),
       month: Number(map.month),
@@ -767,13 +829,153 @@
     return `${y}-${m}-${d}`;
   }
 
+  function parseKeyToUtcMs(key){
+    const [y,m,d] = key.split("-").map(n=>parseInt(n,10));
+    return Date.UTC(y, (m||1)-1, (d||1), 0, 0, 0);
+  }
+
+  function daysBetweenKeys(aKey, bKey){
+    const a = parseKeyToUtcMs(aKey);
+    const b = parseKeyToUtcMs(bKey);
+    return Math.floor((b - a) / 86400000);
+  }
+
+  function makeUtcFromZoned(y, m, d, hh, mi, ss, tz){
+    let guess = Date.UTC(y, m - 1, d, hh, mi, ss);
+    for (let i = 0; i < 4; i++){
+      const p = getTZParts(new Date(guess), tz);
+      const dy = p.year - y;
+      const dm = p.month - m;
+      const dd = p.day - d;
+      const dh = p.hour - hh;
+      const dmi = p.minute - mi;
+      const ds = p.second - ss;
+
+      const deltaMs =
+        (((((dy * 365 + dm * 31 + dd) * 24 + dh) * 60 + dmi) * 60) + ds) * 1000;
+
+      if (Math.abs(deltaMs) < 1000) break;
+      guess -= deltaMs;
+    }
+    return guess;
+  }
+
+  function nextMidnightEtMs(now = new Date()){
+    const p = getTZParts(now, ET_TZ);
+    const utcNextMidnight = makeUtcFromZoned(
+      p.year, p.month, p.day + 1, 0, 0, 0, ET_TZ
+    );
+    return utcNextMidnight - Date.now();
+  }
+
+  function fmtCountdown(ms){
+    ms = Math.max(0, ms);
+    const s = Math.floor(ms/1000);
+    const hh = Math.floor(s/3600);
+    const mm = Math.floor((s%3600)/60);
+    const ss = s%60;
+    return `${hh}h ${String(mm).padStart(2,"0")}m ${String(ss).padStart(2,"0")}s`;
+  }
+
+  function loadChips(){
+    try{
+      const raw = localStorage.getItem(CHIP_STATE_KEY);
+      if(!raw) throw new Error("none");
+      const obj = JSON.parse(raw);
+      if(!obj || typeof obj !== "object") throw new Error("bad");
+
+      if (typeof obj.balance !== "number") obj.balance = DAILY_CHIPS;
+      if (typeof obj.lastDepositKey !== "string" || !obj.lastDepositKey) obj.lastDepositKey = etDateKey();
+
+      return obj;
+    }catch(_){
+      return { balance: DAILY_CHIPS, lastDepositKey: etDateKey() };
+    }
+  }
+
+  function saveChips(state){
+    try{ localStorage.setItem(CHIP_STATE_KEY, JSON.stringify(state)); }catch(_){}
+  }
+
+  let chipState = loadChips();
+
+  function syncChips(){
+    const today = etDateKey();
+    if (chipState.lastDepositKey === today) return;
+
+    const diffDays = Math.max(0, daysBetweenKeys(chipState.lastDepositKey, today));
+    const creditDays = Math.min(diffDays, MAX_BACKPAY_DAYS);
+
+    if (creditDays > 0){
+      chipState.balance += creditDays * DAILY_CHIPS;
+    }
+
+    chipState.lastDepositKey = today;
+    saveChips(chipState);
+  }
+
+  const chipsBalanceEl   = document.getElementById("chipsBalance");
+  const chipsCountdownEl = document.getElementById("chipsCountdown");
+
+  function refreshChipsUI(){
+    syncChips();
+
+    const bal = Math.floor(chipState.balance);
+
+    if (chipsBalanceEl){
+      chipsBalanceEl.textContent = String(bal);
+
+      chipsBalanceEl.classList.remove("chipsRed","chipsYellow","chipsGreen");
+      if (bal < 40) chipsBalanceEl.classList.add("chipsRed");
+      else if (bal < 50) chipsBalanceEl.classList.add("chipsYellow");
+      else chipsBalanceEl.classList.add("chipsGreen");
+    }
+
+    if (chipsCountdownEl){
+      chipsCountdownEl.textContent = fmtCountdown(nextMidnightEtMs(new Date()));
+    }
+  }
+
+  function trySpendForNewGame(){
+    syncChips();
+
+    if (chipState.balance < GAME_COST){
+      return { ok:false, needed: GAME_COST, have: chipState.balance };
+    }
+
+    chipState.balance -= GAME_COST;
+    saveChips(chipState);
+    refreshChipsUI();
+    return { ok:true };
+  }
+
+  function creditChipsFromGameWin(finalGrubstake){
+    const final = Math.floor(finalGrubstake);
+
+    if (final < WIN_THRESHOLD) return 0;
+
+    const credit = Math.max(0, final - GAME_COST);
+    if (credit <= 0) return 0;
+
+    syncChips();
+    chipState.balance += credit;
+    saveChips(chipState);
+    refreshChipsUI();
+    return credit;
+  }
+
+  // ============================================================
+  // NUMBERS / STATS (ISOLATED)
+  // ============================================================
+  const STATS_KEY = K("bes_numbers_v1");
+
   function defaultBucket(){
     return { games:0, wins:0, bestFinal:null, bestHand:null, sumFinal:0 };
   }
 
   function loadStats(){
     try{
-      const raw = localStorage.getItem(STATS_KEY); // FIXED
+      const raw = localStorage.getItem(STATS_KEY);
       if(!raw) throw new Error("none");
       const obj = JSON.parse(raw);
       if(!obj || typeof obj !== "object") throw new Error("bad");
@@ -811,11 +1013,16 @@
     if(!games) return "—";
     return `${Math.round((wins/games)*100)}%`;
   }
-  function fmtBest(v){ return (v==null) ? "—" : String(v); }
+
+  function fmtBest(v){
+    return (v==null) ? "—" : String(v);
+  }
+
   function fmtAvg(sum, games){
     if(!games) return "—";
     return String(Math.round(sum / games));
   }
+
   function setText(id, txt){
     const el = document.getElementById(id);
     if(el) el.textContent = txt;
@@ -867,10 +1074,10 @@
 
     bump(t);
     bump(a);
+
     saveStats(stats);
   }
 
-  /* Share Numbers */
   const shareBtn = document.getElementById("numbersShareBtn");
   if (shareBtn){
     shareBtn.addEventListener("click", async ()=>{
@@ -897,43 +1104,23 @@ Best Hand: ${a_bestHand}`;
     });
   }
 
-  /* Audio ticks (iOS-safe) */
-  let audioCtx = null;
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const TICK = { baseFreq: 520, step: 50, dur: 0.03, vol: 0.05 };
-
-  function getAudioCtx(){
-    if (audioCtx) return audioCtx;
-    try{
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return null;
-      audioCtx = new Ctx();
-      return audioCtx;
-    }catch(_){
-      return null;
-    }
-  }
-
   function playTick(freq){
-    const ctx = getAudioCtx();
-    if (!ctx) return;
-    if (ctx.state === "suspended"){
-      ctx.resume().catch(()=>{});
-    }
     try{
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
       o.type="sine";
       o.frequency.value = freq;
       g.gain.value = TICK.vol;
-      o.connect(g); g.connect(ctx.destination);
+      o.connect(g); g.connect(audioCtx.destination);
       o.start();
-      o.stop(ctx.currentTime + TICK.dur);
+      o.stop(audioCtx.currentTime + TICK.dur);
     }catch(_){}
   }
 
   const el = (tag, cls, txt)=>{ const n=document.createElement(tag); if(cls) n.className=cls; if(txt!=null) n.textContent=txt; return n; };
 
-  /* Deck */
   const SUITS = ["♣","♦","♥","♠"];
   const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
@@ -959,7 +1146,7 @@ Best Hand: ${a_bestHand}`;
 
   const WIN_THRESHOLD=80;
   const GRUB_START=40;
-  const BASE_TARGET=95;
+  const BASE_TARGET=110;   // <-- UPDATED THRESHOLD
   const HANDS_TOTAL=3;
   const GRID_SIZE=16;
   const DISCARD_LIMIT=3;
@@ -1249,7 +1436,7 @@ Best Hand: ${a_bestHand}`;
   function placeAt(index){
     if (frozen) return;
     if (offer.length===0) return;
-    if (selectedIndex===null) return;   // must have a selected card
+    if (selectedIndex===null) return;
     if (placed[index]) return;
 
     placed[index] = offer[selectedIndex];
@@ -1305,7 +1492,6 @@ Best Hand: ${a_bestHand}`;
     const final = netScore();
     const won = final >= currentTarget;
 
-    // Track best hand for this GAME
     bestHandThisGame = (bestHandThisGame == null) ? final : Math.max(bestHandThisGame, final);
 
     let nextCarry = 0;
@@ -1332,6 +1518,12 @@ Best Hand: ${a_bestHand}`;
         carryExcess = nextCarry;
 
         const didWin = (grubRaw >= WIN_THRESHOLD);
+
+        const credited = didWin ? creditChipsFromGameWin(grubRaw) : 0;
+        if (credited > 0){
+          showChipToast(`Chips: ${Math.floor(chipState.balance)}`);
+        }
+
         recordGame(grubRaw, bestHandThisGame, didWin);
         renderNumbers();
 
@@ -1409,28 +1601,31 @@ Best Hand: ${a_bestHand}`;
   }
 
   function requestNewGame(){
-    // Public preview mode: always allow restart (no chip enforcement)
-    closeAllModals();
+    refreshChipsUI();
+
+    const spend = trySpendForNewGame();
+    if (!spend.ok){
+      const ms = nextMidnightEtMs(new Date());
+      setStatus(`Not enough chips. Next free deposit after midnight ET (credited on next visit). Time until midnight: ${fmtCountdown(ms)}.`);
+      chipsOverlay.classList.add("show");
+      return;
+    }
+
+    setStatus("");
+    showChipToast(`Chips: ${Math.floor(chipState.balance)}`);
     restartGame();
   }
 
-  /* Wire */
   discardBtn.addEventListener("click", discardVisible);
-
-  // iPad: pointerdown makes Restart feel more reliable
-  restartBtn.addEventListener("pointerdown", (e)=>{ e.preventDefault(); requestNewGame(); }, { passive:false });
   restartBtn.addEventListener("click", requestNewGame);
-
   anteBtnEl.addEventListener("click", confirmAnte);
   anteInputEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") confirmAnte(); });
 
   document.getElementById("year").textContent = String(new Date().getFullYear());
 
-  // Ensure Numbers display reflects stored stats whenever opened
   renderNumbers();
-
-  // Start immediately in preview mode
-  restartGame();
+  refreshChipsUI();
+  requestNewGame();
 })();
 </script>
 </body>
